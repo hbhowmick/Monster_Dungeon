@@ -1,15 +1,14 @@
 class MonsterDungeon():
-    def __init__(self, rows, cols, lives, flag_plus, level):
+    def __init__(self, rows, cols, lives, level):
         self.rows = rows
         self.cols = cols
         self.lives = lives
-        self.flag_plus = flag_plus
         self.level = level
 
     def showLevel(self):
         print('LEVEL {}'.format(self.level))
 
-    def showGrid(self, player, monster, door):
+    def showGrid(self, player, monster, door, power_up):
         # make sure you have access to coordinates in player and monster classes
         print('Player Coords: {}'.format(player.coords))
         print('Monster Coords: {}'.format(monster.coords))
@@ -19,7 +18,7 @@ class MonsterDungeon():
             # print top border for each row
             print(' ---' * self.cols)
             for j in range(self.cols):
-                if i == power_up.coords[1] and j == power_up.coords[0] and self.flag_plus == []:
+                if i == power_up.coords[1] and j == power_up.coords[0] and power_up.received == False:
                     print('| + ', end='')
                 elif i == player.coords[1] and j == player.coords[0] and j == self.cols - 1:
                     print('| p ', end='|')
@@ -59,9 +58,11 @@ class MonsterDungeon():
             return True
 
     def checkPowerUp(self, player, power_up):
-        if player.coords == power_up.coords:
+        if player.coords == power_up.coords and power_up.received == False:
             self.lives += 1
-            self.flag_plus.append('powered_up')
+            # using setter method to change value, as is good practice not to change directly
+            # sending in the value of True to the method
+            power_up.setReceived(True)
 
 class Player():
     def __init__(self, name):
@@ -125,6 +126,10 @@ class Door():
 class PowerUp():
     def __init__(self):
         self.coords = [3,0]
+        self.received = False
+
+    def setReceived(self, value):
+        self.received = value
 
 from IPython.display import clear_output
 import random
@@ -142,7 +147,7 @@ while True:
     monster = Monster()
     door = Door()
     power_up = PowerUp()
-    game = MonsterDungeon(rows, cols, lives, flag_plus, level)
+    game = MonsterDungeon(rows, cols, lives, level)
 
 
 
@@ -153,7 +158,7 @@ while True:
         game.showLevel()
 
         # show the grid
-        game.showGrid(player, monster, door)
+        game.showGrid(player, monster, door, power_up)
 
         # call player to move
         game_over = player.movePlayer(cols, rows)
